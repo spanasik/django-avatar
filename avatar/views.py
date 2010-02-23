@@ -1,18 +1,17 @@
-import os.path
-
-from avatar.models import Avatar, avatar_file_path, get_primary_avatar
-from avatar.forms import PrimaryAvatarForm, DeleteAvatarForm, UploadAvatarForm
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
-
 from django.db.models import get_app
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
-from avatar import AVATAR_MAX_AVATARS_PER_USER, AVATAR_DEFAULT_URL
+from django.contrib.auth.decorators import login_required
+
+from avatar import AVATAR_MAX_AVATARS_PER_USER
+from avatar.models import Avatar
+from avatar.util import get_primary_avatar, get_default_avatar_url
+from avatar.forms import PrimaryAvatarForm, DeleteAvatarForm, UploadAvatarForm
 
 try:
     notification = get_app('notification')
@@ -38,15 +37,21 @@ def _get_next(request):
     3. If Django can determine the previous page from the HTTP headers, the view will
     redirect to that previous page.
     """
-    next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
+    next = request.POST.get('next', request.GET.get('next',
+        request.META.get('HTTP_REFERER', None)))
     if not next:
         next = request.path
     return next
     
 def _notification_updated(request, avatar):
-    notification.send([request.user], "avatar_updated", {"user": request.user, "avatar": avatar})
+    notification.send([request.user], "avatar_updated",
+        {"user": request.user, "avatar": avatar})
     if friends:
-        notification.send((x['friend'] for x in Friendship.objects.friends_for_user(request.user)), "avatar_friend_updated", {"user": request.user, "avatar": avatar})
+        notification.send((x['friend'] for x in
+                Friendship.objects.friends_for_user(request.user)),
+            "avatar_friend_updated",
+            {"user": request.user, "avatar": avatar}
+        )
 
 def _get_avatars(user):
     # Default set. Needs to be sliced, but that's it. Keep the natural order.
@@ -142,6 +147,7 @@ def delete(request, extra_context={}, next_override=None, *args, **kwargs):
         if delete_avatar_form.is_valid():
             ids = delete_avatar_form.cleaned_data['choices']
             if unicode(avatar.id) in ids and avatars.count() > len(ids):
+                # Find the next best avatar, and set it as the new primary
                 for a in avatars:
                     if unicode(a.id) not in ids:
                         a.primary = True
@@ -176,5 +182,6 @@ def render_primary(request, extra_context={}, user=None, size=80, *args, **kwarg
         # the CDN store those files instead
         return HttpResponseRedirect(avatar.avatar_url(size))
     else:
-        return HttpResponseRedirect(AVATAR_DEFAULT_URL)
+        url = get_default_avatar_url()
+        return HttpResponseRedirect(url)
     

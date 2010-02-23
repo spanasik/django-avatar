@@ -1,13 +1,15 @@
 import urllib
 
 from django import template
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.utils.hashcompat import md5_constructor
 from django.core.urlresolvers import reverse
 
-from avatar.models import get_primary_avatar
-from avatar import AVATAR_DEFAULT_URL, AVATAR_GRAVATAR_BACKUP
+from django.contrib.auth.models import User
+
+from avatar import AVATAR_GRAVATAR_BACKUP, AVATAR_GRAVATAR_DEFAULT
+from avatar.util import get_primary_avatar
+from avatar.util import get_default_avatar_url
 
 register = template.Library()
 
@@ -17,11 +19,14 @@ def avatar_url(user, size=80):
         return avatar.avatar_url(size)
     else:
         if AVATAR_GRAVATAR_BACKUP:
+            params = {'s': str(size)}
+            if AVATAR_GRAVATAR_DEFAULT:
+                params['d'] = AVATAR_GRAVATAR_DEFAULT
             return "http://www.gravatar.com/avatar/%s/?%s" % (
                 md5_constructor(user.email).hexdigest(),
-                urllib.urlencode({'s': str(size)}),)
+                urllib.urlencode(params))
         else:
-            return AVATAR_DEFAULT_URL
+            return get_default_avatar_url()
 register.simple_tag(avatar_url)
 
 def avatar(user, size=80):
@@ -31,7 +36,7 @@ def avatar(user, size=80):
             alt = unicode(user)
             url = avatar_url(user, size)
         except User.DoesNotExist:
-            url = AVATAR_DEFAULT_URL
+            url = get_default_avatar_url()
             alt = _("Default Avatar")
     else:
         alt = unicode(user)

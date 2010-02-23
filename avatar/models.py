@@ -2,18 +2,21 @@ import datetime
 import os.path
 
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.utils.translation import ugettext as _
 from django.utils.hashcompat import md5_constructor
 
+from django.contrib.auth.models import User
+
 try:
     from cStringIO import StringIO
+    dir(StringIO) # Placate PyFlakes
 except ImportError:
     from StringIO import StringIO
 
 try:
     from PIL import Image
+    dir(Image) # Placate PyFlakes
 except ImportError:
     import Image
 
@@ -56,25 +59,6 @@ def find_extension(format):
         format = 'jpg'
 
     return format
-    
-def get_primary_avatar(user, size=80):
-    if not isinstance(user, User):
-        try:
-            user = User.objects.get(username=user)
-        except User.DoesNotExist:
-            return AVATAR_DEFAULT_URL
-    avatars = user.avatar_set.order_by('-date_uploaded')
-    primary = avatars.filter(primary=True)
-    if primary.count() > 0:
-        avatar = primary[0]
-    elif avatars.count() > 0:
-        avatar = avatars[0]
-    else:
-        avatar = None
-    if avatar:
-        if not avatar.thumbnail_exists(size):
-            avatar.create_thumbnail(size)
-    return avatar
 
 class Avatar(models.Model):
     user = models.ForeignKey(User)
