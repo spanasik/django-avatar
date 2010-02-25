@@ -24,6 +24,9 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.load_template_source',
 )
  
+AVATAR_ALLOWED_FILE_EXTS = ('.jpg', '.png')
+AVATAR_MAX_SIZE = 1024 * 1024
+ 
 urlpatterns = patterns('',
     (r'^avatar/', include('avatar.urls')),
 )

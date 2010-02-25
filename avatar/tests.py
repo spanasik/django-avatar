@@ -44,24 +44,27 @@ class AvatarUploadTests(TestCase):
         self.failUnlessEqual(response.context['upload_avatar_form'].errors, {})
         
     def testImageWithoutExtension(self):
+        # use with AVATAR_ALLOWED_FILE_EXTS = ('.jpg', '.png')
         f = open(os.path.join(self.testdatapath,"imagefilewithoutext"), "rb")
         response = self.client.post(reverse('avatar_add'), {
             'avatar': f,
         })
         f.close()
         self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(response.context['upload_avatar_form'].errors, {})
+        self.failIfEqual(response.context['upload_avatar_form'].errors, {})
         
     def testImageWithWrongExtension(self):
+        # use with AVATAR_ALLOWED_FILE_EXTS = ('.jpg', '.png')	    
         f = open(os.path.join(self.testdatapath,"imagefilewithwrongext.ogg"), "rb")
         response = self.client.post(reverse('avatar_add'), {
             'avatar': f,
         })
         f.close()
         self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(response.context['upload_avatar_form'].errors, {})
+        self.failIfEqual(response.context['upload_avatar_form'].errors, {})
         
     def testImageTooBig(self):
+        # use with AVATAR_MAX_SIZE = 1024 * 1024
         f = open(os.path.join(self.testdatapath,"testbig.png"), "rb")
         response = self.client.post(reverse('avatar_add'), {
             'avatar': f,
