@@ -26,6 +26,7 @@ TEMPLATE_LOADERS = (
  
 AVATAR_ALLOWED_FILE_EXTS = ('.jpg', '.png')
 AVATAR_MAX_SIZE = 1024 * 1024
+AVATAR_MAX_AVATARS_PER_USER = 20
  
 urlpatterns = patterns('',
     (r'^avatar/', include('avatar.urls')),
