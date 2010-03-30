@@ -19,6 +19,10 @@ friends = False
 if 'friends' in settings.INSTALLED_APPS:
     friends = True
     from friends.models import Friendship
+    
+relationships = False
+if 'relationships' in settings.INSTALLED_APPS:
+    relationships = True
 
 def _get_next(request):
     """
@@ -46,6 +50,11 @@ def _notification_updated(request, avatar):
     if friends:
         notification.send((x['friend'] for x in
                 Friendship.objects.friends_for_user(request.user)),
+            "avatar_friend_updated",
+            {"user": request.user, "avatar": avatar}
+        )
+    if relationships:
+        notification.send(request.user.relationships.followers(),
             "avatar_friend_updated",
             {"user": request.user, "avatar": avatar}
         )
