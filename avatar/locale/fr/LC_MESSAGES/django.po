@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 18:29+0100\n"
-"PO-Revision-Date: 2010-03-26 18:35+0100\n"
+"POT-Creation-Date: 2010-05-04 13:03+0200\n"
+"PO-Revision-Date: 2010-05-04 13:04+0100\n"
 "Last-Translator: Mathieu Pillard <m.pillard@liberation.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -35,15 +35,15 @@ msgstr "Vous avez déjà %(nb_avatars)d avatars, et le maximum autorisé est %(n
 msgid "Avatar for %s"
 msgstr "Avatar pour %s"
 
-#: views.py:90
+#: views.py:99
 msgid "Successfully uploaded a new avatar."
 msgstr "Votre nouveau avatar a été uploadé avec succès."
 
-#: views.py:128
+#: views.py:138
 msgid "Successfully updated your avatar."
 msgstr "Votre avatar a été mis à jour avec succès."
 
-#: views.py:166
+#: views.py:176
 msgid "Successfully deleted the requested avatars."
 msgstr "Les avatars sélectionnés ont été effacés avec succès."
 
@@ -97,13 +97,13 @@ msgstr "Effacer"
 
 #: templates/notification/avatar_friend_updated/notice.html:2
 #, python-format
-msgid "<a href=\"%(user_url)s\">%(avatar_creator)s</a> has updated their avatar <a href=\"%(avatar_url)s\">%(avatar)s</a>."
-msgstr "<a href=\"%(user_url)s\">%(avatar_creator)s</a> a mis à jour son avatar <a href=\"%(avatar_url)s\">%(avatar)s</a>."
+msgid "<a href=\"%(user_url)s\">%(avatar_creator)s</a> has updated <a href=\"%(avatar_url)s\">their avatar</a>."
+msgstr "<a href=\"%(user_url)s\">%(avatar_creator)s</a> a mis à jour <a href=\"%(avatar_url)s\">son avatar</a>."
 
 #: templates/notification/avatar_updated/notice.html:2
 #, python-format
-msgid "You have updated your avatar <a href=\"%(avatar_url)s\">%(avatar)s</a>."
-msgstr "Vous avez mis à jour votre <a href=\"%(avatar_url)s\">%(avatar)s</a>."
+msgid "You have updated <a href=\"%(avatar_url)s\">your avatar</a>."
+msgstr "Vous avez mis à jour <a href=\"%(avatar_url)s\">votre avatar</a>."
 
 #: templatetags/avatar_tags.py:40
 msgid "Default Avatar"
