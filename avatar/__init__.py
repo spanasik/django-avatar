@@ -46,7 +46,6 @@ def avatar_updated_callback(sender, instance, created, **kwargs):
     elif avatar.primary:
         user.message_set.create(
                 message=_("Successfully updated your avatar."))
-    print avatar.id
     if avatar.primary:
         notification.send([user], "avatar_updated", {"user": user, "avatar": avatar})
         if friends:
