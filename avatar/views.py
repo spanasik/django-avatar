@@ -92,7 +92,7 @@ def add(request, extra_context=None, next_override=None,
                 primary = True,
             )
             image_file = request.FILES['avatar']
-            avatar.avatar.save(image_file.name, image_file)
+            avatar.avatar.save(image_file.name, image_file, save=False)
             avatar.save()
             updated = True
             request.user.message_set.create(
