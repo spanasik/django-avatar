@@ -1,7 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
@@ -10,19 +9,6 @@ from avatar import AVATAR_MAX_AVATARS_PER_USER
 from avatar.models import Avatar
 from avatar.util import get_primary_avatar, get_default_avatar_url
 from avatar.forms import PrimaryAvatarForm, DeleteAvatarForm, UploadAvatarForm
-
-notification = False
-if 'notification' in settings.INSTALLED_APPS:
-    from notification import models as notification
-
-friends = False
-if 'friends' in settings.INSTALLED_APPS:
-    friends = True
-    from friends.models import Friendship
-    
-relationships = False
-if 'relationships' in settings.INSTALLED_APPS:
-    relationships = True
 
 def _get_next(request):
     """
@@ -44,21 +30,6 @@ def _get_next(request):
         next = request.path
     return next
     
-def _notification_updated(request, avatar):
-    notification.send([request.user], "avatar_updated",
-        {"user": request.user, "avatar": avatar})
-    if friends:
-        notification.send((x['friend'] for x in
-                Friendship.objects.friends_for_user(request.user)),
-            "avatar_friend_updated",
-            {"user": request.user, "avatar": avatar}
-        )
-    if relationships:
-        notification.send(request.user.relationships.followers(),
-            "avatar_friend_updated",
-            {"user": request.user, "avatar": avatar}
-        )
-
 def _get_avatars(user):
     # Default set. Needs to be sliced, but that's it. Keep the natural order.
     avatars = user.avatar_set.all()
@@ -94,11 +65,6 @@ def add(request, extra_context=None, next_override=None,
             image_file = request.FILES['avatar']
             avatar.avatar.save(image_file.name, image_file, save=False)
             avatar.save()
-            updated = True
-            request.user.message_set.create(
-                message=_("Successfully uploaded a new avatar."))
-            if notification:
-                _notification_updated(request, avatar)
             return HttpResponseRedirect(next_override or _get_next(request))
     return render_to_response(
             'avatar/add.html',
@@ -127,17 +93,11 @@ def change(request, extra_context=None, next_override=None,
     primary_avatar_form = primary_form(request.POST or None,
         user=request.user, avatars=avatars, **kwargs)
     if request.method == "POST":
-        updated = False
         if 'choice' in request.POST and primary_avatar_form.is_valid():
             avatar = Avatar.objects.get(id=
                 primary_avatar_form.cleaned_data['choice'])
             avatar.primary = True
             avatar.save()
-            updated = True
-            request.user.message_set.create(
-                message=_("Successfully updated your avatar."))
-        if updated and notification:
-            _notification_updated(request, avatar)
         return HttpResponseRedirect(next_override or _get_next(request))
     return render_to_response(
         'avatar/change.html',
@@ -168,12 +128,8 @@ def delete(request, extra_context=None, next_override=None, *args, **kwargs):
                     if unicode(a.id) not in ids:
                         a.primary = True
                         a.save()
-                        if notification:
-                            _notification_updated(request, a)
                         break
             Avatar.objects.filter(id__in=ids).delete()
-            request.user.message_set.create(
-                message=_("Successfully deleted the requested avatars."))
             return HttpResponseRedirect(next_override or _get_next(request))
     return render_to_response(
         'avatar/confirm_delete.html',

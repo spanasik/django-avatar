@@ -22,7 +22,49 @@ AVATAR_ALLOWED_FILE_EXTS = getattr(settings, 'AVATAR_ALLOWED_FILE_EXTS', None)
 
 from django.db.models import signals
 from avatar.models import Avatar
+from django.utils.translation import ugettext as _
 
+notification = False
+if 'notification' in settings.INSTALLED_APPS:
+    from notification import models as notification
+
+friends = False
+if 'friends' in settings.INSTALLED_APPS:
+    friends = True
+    from friends.models import Friendship
+    
+relationships = False
+if 'relationships' in settings.INSTALLED_APPS:
+    relationships = True
+
+def avatar_updated_callback(sender, instance, created, **kwargs):
+    avatar = instance
+    user = avatar.user
+    if created:
+        user.message_set.create(
+                message=_("Successfully uploaded a new avatar."))
+    elif avatar.primary:
+        user.message_set.create(
+                message=_("Successfully updated your avatar."))
+    print avatar.id
+    if avatar.primary:
+        notification.send([user], "avatar_updated", {"user": user, "avatar": avatar})
+        if friends:
+            notification.send((x['friend'] for x in
+                    Friendship.objects.friends_for_user(user)),
+                "avatar_friend_updated", {"user": user, "avatar": avatar}
+            )
+        if relationships:
+            notification.send(user.relationships.followers(),
+                "avatar_friend_updated", {"user": user, "avatar": avatar}
+            )
+signals.post_save.connect(avatar_updated_callback, sender=Avatar)
+        
+def avatar_deleted_callback(sender, instance, **kwargs):
+    user = instance.user
+    user.message_set.create(
+        message=_("Successfully deleted the requested avatars."))
+signals.post_delete.connect(avatar_deleted_callback, sender=Avatar)
 
 def create_default_thumbnails(instance=None, created=False, **kwargs):
     if created:
