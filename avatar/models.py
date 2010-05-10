@@ -111,6 +111,11 @@ class Avatar(models.Model):
     
     def avatar_url(self, size):
         return self.avatar.storage.url(self.avatar_name(size))
+        
+    def get_absolute_url(self):
+        # Default dummy get_absolute_url, not very useful in itself, but 
+        # projects can override this.
+        return avatar_url(self, 80)
     
     def avatar_name(self, size):
         ext = find_extension(AVATAR_THUMB_FORMAT)
