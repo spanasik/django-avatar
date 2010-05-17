@@ -143,17 +143,17 @@ def delete(request, extra_context=None, next_override=None, *args, **kwargs):
         )
     )
     
-def render_primary(request, extra_context={}, user=None, size=80, *args, **kwargs):
-    size = int(size)
-    avatar = get_primary_avatar(user, size=size)
-    if avatar:
-        # FIXME: later, add an option to render the resized avatar dynamically
-        # instead of redirecting to an already created static file. This could
-        # be useful in certain situations, particulary if there is a CDN and
-        # we want to minimize the storage usage on our static server, letting
-        # the CDN store those files instead
-        return HttpResponseRedirect(avatar.avatar_url(size))
-    else:
-        url = get_default_avatar_url()
-        return HttpResponseRedirect(url)
+def render_primary(request, extra_context={}, username=None, size=80, *args, **kwargs):
+    if username:
+        size = int(size)
+        avatar = get_primary_avatar(username, size=size)
+        if avatar:
+            # FIXME: later, add an option to render the resized avatar dynamically
+            # instead of redirecting to an already created static file. This could
+            # be useful in certain situations, particulary if there is a CDN and
+            # we want to minimize the storage usage on our static server, letting
+            # the CDN store those files instead
+            return HttpResponseRedirect(avatar.avatar_url(size))
+    url = get_default_avatar_url()
+    return HttpResponseRedirect(url)
     
