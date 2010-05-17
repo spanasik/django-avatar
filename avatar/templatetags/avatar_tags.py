@@ -53,7 +53,7 @@ def primary_avatar(user, size=80):
     we will avoid many db calls.
     """
     alt = unicode(user)
-    url = reverse('avatar_render_primary', kwargs={'user' : user, 'size' : size})
+    url = reverse('avatar_render_primary', kwargs={'username' : user, 'size' : size})
     return """<img src="%s" alt="%s" width="%s" height="%s" />""" % (url, alt,
         size, size)
 register.simple_tag(primary_avatar)

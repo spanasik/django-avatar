@@ -72,7 +72,7 @@ class AvatarUploadTests(TestCase):
     
     def testDefaultUrl(self):
         response = self.client.get(reverse('avatar_render_primary', kwargs={
-            'user': self.user.username,
+            'username': self.user.username,
             'size': 80,
         }))
         loc = response['Location']
